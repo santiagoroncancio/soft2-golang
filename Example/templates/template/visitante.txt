@@ -1,0 +1,12 @@
+{{define "visitante"}}
+Template de visitantes
+{{range .}}
+
+    {{if .Edad}}
+        Nombre: {{.Nombre}} - Edad: {{.Edad}}
+    {{end}}
+
+    Lorem ipsum dolor sit amet, consectetur adipisicing elit. Deserunt laudantium sequi nihil pariatur nemo nobis ducimus harum reiciendis. Sunt facere consequatur mollitia alias labore cumque, libero dolores eius nemo eos?
+
+{{end}}
+{{end}}
