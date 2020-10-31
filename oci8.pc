@@ -1,5 +1,5 @@
 ora=C:/OracleInstantClient_12_1
-gcc=C:/MinGW/mingw64
+gcc=C:/msys64/mingw64
 oralib=${ora}/sdk/lib/msvc
 orainclude=${ora}/sdk/include
 gcclib=${gcc}/lib
