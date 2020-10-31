@@ -9,13 +9,13 @@ import (
 
 func main() {
 	println("start")
-	db, err := sql.Open("oci8", "system/3741@localhost:1521/xe?PROTOCAL=TCP")
+	db, err := sql.Open("oci8", "candido/lord@localhost:1521/xe?PROTOCAL=TCP")
 	if err != nil {
 		log.Fatal(err)
 	}
 	println("Connection succcess!!")
 	// rows, err := db.Query("SELECT sysdate  FROM dual")
-	rows, err := db.Query("SELECT CARGO from cargos")
+	rows, err := db.Query("SELECT cargo from cargos")
 	if err != nil {
 		log.Fatal(err)
 	}

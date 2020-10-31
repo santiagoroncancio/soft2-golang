@@ -1,11 +1,16 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/json"
+	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"strconv"
 	"time"
+
+	_ "github.com/mattn/go-oci8"
 
 	"github.com/gorilla/mux"
 )
@@ -15,6 +20,11 @@ type Note struct {
 	Title       string    `json:"title"`
 	Description string    `json:"description"`
 	CreatedAt   time.Time `json:"create_at"`
+}
+
+type User struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
 }
 
 var noteStore = make(map[string]Note)
@@ -89,12 +99,50 @@ func DeleteNoteHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
+func Login(w http.ResponseWriter, r *http.Request) {
+	var user User
+	reqBody, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		fmt.Fprintf(w, "Kindly enter data with the event title and description only in order to update")
+	}
+
+	json.Unmarshal(reqBody, &user)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(user)
+	orauser := user.Username + "/" + user.Password + "@localhost:1521/xe?PROTOCAL=TCP"
+
+	//db, err := sql.Open("oci8", orauser+"@localhost:1521/xe?PROTOCAL=TCP")
+	db, err := sql.Open("oci8", orauser)
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
+	println("Connection succcess!!")
+
+	rows, err := db.Query("SELECT count(cargo) from cargos")
+	if err != nil {
+		log.Fatal(err)
+	}
+	var (
+		sysdate string
+	)
+	for rows.Next() {
+		if err = rows.Scan(&sysdate); err != nil {
+			log.Fatalln("error fetching", err)
+		}
+		log.Println(sysdate)
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}
+
 func main() {
 	r := mux.NewRouter().StrictSlash(false)
 	r.HandleFunc("/api/notes", GetNoteHandler).Methods("GET")
 	r.HandleFunc("/api/notes", PostNoteHandler).Methods("POST")
 	r.HandleFunc("/api/notes/{id}", PutNoteHandler).Methods("PUT")
 	r.HandleFunc("/api/notes/{id}", DeleteNoteHandler).Methods("DELETE")
+	r.HandleFunc("/api/login", Login).Methods("POST")
 
 	server := &http.Server{
 		Addr:           ":8080",
