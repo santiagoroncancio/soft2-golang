@@ -1,24 +1,29 @@
 function login() {
-    var usuario = {
-        username: $("#username").val(),
-        password: $("#password").val()
-    }
-
-    //$('#target').html('sending..');
-
     $.ajax({
-        url: 'http://localhost:8080/api/login',
-        data: JSON.stringify(usuario),
-        type: 'POST',
-        dataType: 'json',
-        contentType: 'application/json',
-        success: function (data) {
-            //$('#target').html(data.msg);
-            alert(data)
-        },
-        error: function (error) {
-            console.log(error);
-        }
+        // url: 'http://localhost:8080/api/login',
+        url: 'http://localhost:8080/api/notes',
+        type: 'GET'
+    }).done(function(data){
+    alert(data);
     });
-
 }
+// function login() {
+//     var usuario = {
+//         "title": "Titulo 1",
+//         "description": "Description"
+//     }
+
+//     $.ajax({
+//         // url: 'http://localhost:8080/api/login',
+//         url: 'http://localhost:8080/api/notes',
+//         type: 'POST',
+//         contentType: 'application/json;charset = utf-8',
+//         data: JSON.stringify(usuario),
+//         success: function (data) {
+//             console.log(data);
+//         },
+//         error: function(error){
+//             console.log(error);
+//         }
+//     });
+// }
