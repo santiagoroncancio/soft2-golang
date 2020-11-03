@@ -1,17 +1,16 @@
 $(document).ready(function () {
     $('#btn-conectar').click(function () {
         var usuario = {
-            "title": "Titulo 1",
-            "description": "Description"
+            username: $("#username").val(),
+            password: $("#password").val()
         }
 
         $.ajax({
-            // url: 'http://localhost:8080/api/login',
-            url: 'http://localhost:9000/api/notes',
+            url: 'http://localhost:9000/api/login',
             type: 'POST',
             data: JSON.stringify(usuario),
             success: function () {
-                console.log("Funciona");
+                console.log("success");
             },
             error: function (error) {
                 console.log(error);

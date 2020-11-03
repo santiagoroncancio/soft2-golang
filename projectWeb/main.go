@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"strconv"
@@ -102,28 +101,21 @@ func DeleteNoteHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
-// Login - Inicio de sesion y conexion con oracle
-func Login(w http.ResponseWriter, r *http.Request) {
+// LoginUser - Inicio de sesion y conexion con oracle
+func LoginUser(w http.ResponseWriter, r *http.Request) {
 	var user User
-	reqBody, err := ioutil.ReadAll(r.Body)
+	err := json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
-		fmt.Fprintf(w, "Kindly enter data with the event title and description only in order to update")
+		panic(err)
 	}
 
-	json.Unmarshal(reqBody, &user)
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(user)
-	orauser := user.Username + "/" + user.Password + "@localhost:1521/xe?PROTOCAL=TCP"
-
-	//db, err := sql.Open("oci8", orauser+"@localhost:1521/xe?PROTOCAL=TCP")
-	db, err := sql.Open("oci8", orauser)
+	println("start")
+	db, err := sql.Open("oci8", user.Username+"/"+user.Password+"@localhost:1521/xe?PROTOCAL=TCP")
 	if err != nil {
 		log.Fatal(err)
-		return
 	}
 	println("Connection succcess!!")
-
-	rows, err := db.Query("SELECT count(cargo) from cargos")
+	rows, err := db.Query("SELECT sysdate  FROM dual")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -143,15 +135,17 @@ func Login(w http.ResponseWriter, r *http.Request) {
 func main() {
 	r := mux.NewRouter().StrictSlash(false)
 
+	// Cors
 	header := handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization"})
 	methods := handlers.AllowedMethods([]string{"GET", "POST", "PUT", "HEAD", "OPTIONS"})
 	origins := handlers.AllowedOrigins([]string{"*"})
 
-	r.HandleFunc("/api/notes", GetNoteHandler).Methods("GET", "OPTIONS")
+	r.HandleFunc("/api/login", LoginUser).Methods("POST")
+
+	r.HandleFunc("/api/notes", GetNoteHandler).Methods("GET")
 	r.HandleFunc("/api/notes", PostNoteHandler).Methods("POST")
 	r.HandleFunc("/api/notes/{id}", PutNoteHandler).Methods("PUT")
 	r.HandleFunc("/api/notes/{id}", DeleteNoteHandler).Methods("DELETE")
-	r.HandleFunc("/api/login", Login).Methods("POST")
 
 	// server := &http.Server{
 	// 	Addr:           ":8080",
@@ -164,8 +158,8 @@ func main() {
 	// log.Println("Escuchando localhost:8080...")
 	// server.ListenAndServe()
 
+	log.Println("Escuchando localhost:9000...")
 	err := http.ListenAndServe(":9000", handlers.CORS(header, methods, origins)(r))
-
 	if err != nil {
 		fmt.Println(err)
 	}
