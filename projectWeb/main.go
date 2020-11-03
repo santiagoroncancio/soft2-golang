@@ -28,6 +28,11 @@ type User struct {
 	Password string `json:"password"`
 }
 
+//Reply - struct
+type Reply struct {
+	Dato string `json:"dato"`
+}
+
 var noteStore = make(map[string]Note)
 
 var id int
@@ -109,27 +114,82 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 
-	println("start")
 	db, err := sql.Open("oci8", user.Username+"/"+user.Password+"@localhost:1521/xe?PROTOCAL=TCP")
+
+	fmt.Println("Error creating DB:", err)
+	fmt.Println("To verify, db is:", db)
+
+	reply := Reply{"Conexión exitosa :D"}
+
 	if err != nil {
-		log.Fatal(err)
-	}
-	println("Connection succcess!!")
-	rows, err := db.Query("SELECT sysdate  FROM dual")
-	if err != nil {
-		log.Fatal(err)
-	}
-	var (
-		sysdate string
-	)
-	for rows.Next() {
-		if err = rows.Scan(&sysdate); err != nil {
-			log.Fatalln("error fetching", err)
+		fmt.Println("Error en la conexión D:")
+	} else {
+		rows, err := db.Query("SELECT sysdate  FROM dual")
+		if err != nil {
+			log.Fatal(err)
 		}
-		log.Println(sysdate)
+		var (
+			sysdate string
+		)
+		for rows.Next() {
+			if err = rows.Scan(&sysdate); err != nil {
+				log.Fatalln("error fetching", err)
+			}
+			log.Println(sysdate)
+		}
+		if err != nil {
+			panic(err)
+		}
 	}
 
-	w.WriteHeader(http.StatusNoContent)
+	w.Header().Set("Content-Type", "application/json")
+	j, err := json.Marshal(reply)
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(j)
+}
+
+// ConsultaSQL - ConsultaSQL Oracle
+func ConsultaSQL(w http.ResponseWriter, r *http.Request) {
+	var user User
+	err := json.NewDecoder(r.Body).Decode(&user)
+	if err != nil {
+		panic(err)
+	}
+
+	db, err := sql.Open("oci8", user.Username+"/"+user.Password+"@localhost:1521/xe?PROTOCAL=TCP")
+
+	fmt.Println("Error creating DB:", err)
+	fmt.Println("To verify, db is:", db)
+
+	reply := Reply{"Conexión exitosa :D"}
+
+	if err != nil {
+		fmt.Println("Error en la conexión D:")
+	} else {
+		rows, err := db.Query("SELECT sysdate  FROM dual")
+		if err != nil {
+			log.Fatal(err)
+		}
+		var (
+			sysdate string
+		)
+		for rows.Next() {
+			if err = rows.Scan(&sysdate); err != nil {
+				log.Fatalln("error fetching", err)
+			}
+			log.Println(sysdate)
+		}
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	j, err := json.Marshal(reply)
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(j)
 }
 
 func main() {
@@ -141,6 +201,7 @@ func main() {
 	origins := handlers.AllowedOrigins([]string{"*"})
 
 	r.HandleFunc("/api/login", LoginUser).Methods("POST")
+	r.HandleFunc("/api/consulta", ConsultaSQL).Methods("POST")
 
 	r.HandleFunc("/api/notes", GetNoteHandler).Methods("GET")
 	r.HandleFunc("/api/notes", PostNoteHandler).Methods("POST")

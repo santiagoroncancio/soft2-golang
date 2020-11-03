@@ -39,7 +39,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
       <!-- User Login -->
       <div class="form-inline">
         <div class="input-group input-group-sm mt-2">
-          <input type="text" id="username" class="form-control" placeholder="Username">
+          <input type="text" id="username" class="form-control" placeholder="Username" value="system">
           <div class="input-group-append">
             <div class="input-group-text">
               <span class="fas fa-envelope"></span>
@@ -48,7 +48,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
         </div>
 
         <div class="input-group input-group-sm ml-2 mt-2">
-          <input type="password" id="password" class="form-control" placeholder="Password">
+          <input type="password" id="password" class="form-control" placeholder="Password" value="3741">
           <div class="input-group-append">
             <div class="input-group-text">
               <span class="fas fa-lock"></span>
@@ -143,13 +143,13 @@ scratch. This page gets rid of all links and provides the needed markup only.
             <div class="col-lg-12">
               <div class="form-group">
                 <label>SQL</label>
-                <textarea class="form-control" rows="3" placeholder="Escribe tu comando"></textarea>
+                <textarea id="text-area" class="form-control" rows="3" placeholder="Escribe tu comando"></textarea>
               </div>
             </div>
             <div class="col-lg-12 mb-4">
               <div class="form-group">
-                <a href="#" class="btn btn-primary float-right ml-2">Limpiar</a>
-                <a href="#" class="btn btn-success float-right">Ejecutar</a></div>
+                <button class="btn btn-primary float-right ml-2" id="btn-limpiar">Limpiar</button>
+                <button href="" class="btn btn-success float-right" id="btn-ejecutar">Ejecutar</button></div>
             </div>
             <!-- /.col-md-6 -->
             <div class="col-lg-12">
