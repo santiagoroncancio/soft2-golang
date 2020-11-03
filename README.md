@@ -10,3 +10,6 @@ Repository for the final project of the Software 2 course - Unillanos
 - Candido Moreno - programer
 - Santiago Roncancio - programmer
 
+# Project web 
+- Cliente --> node app.js
+- server --> go run main.go

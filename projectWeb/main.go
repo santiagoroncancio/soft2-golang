@@ -12,6 +12,7 @@ import (
 
 	_ "github.com/mattn/go-oci8"
 
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 )
 
@@ -40,6 +41,7 @@ func GetNoteHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
+
 	j, err := json.Marshal(notes)
 	if err != nil {
 		panic(err)
@@ -140,20 +142,31 @@ func Login(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	r := mux.NewRouter().StrictSlash(false)
-	r.HandleFunc("/api/notes", GetNoteHandler).Methods("GET")
+
+	header := handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization"})
+	methods := handlers.AllowedMethods([]string{"GET", "POST", "PUT", "HEAD", "OPTIONS"})
+	origins := handlers.AllowedOrigins([]string{"*"})
+
+	r.HandleFunc("/api/notes", GetNoteHandler).Methods("GET", "OPTIONS")
 	r.HandleFunc("/api/notes", PostNoteHandler).Methods("POST")
 	r.HandleFunc("/api/notes/{id}", PutNoteHandler).Methods("PUT")
 	r.HandleFunc("/api/notes/{id}", DeleteNoteHandler).Methods("DELETE")
 	r.HandleFunc("/api/login", Login).Methods("POST")
 
-	server := &http.Server{
-		Addr:           ":8080",
-		Handler:        r,
-		ReadTimeout:    10 * time.Second,
-		WriteTimeout:   10 * time.Second,
-		MaxHeaderBytes: 1 << 20,
-	}
+	// server := &http.Server{
+	// 	Addr:           ":8080",
+	// 	Handler:        r,
+	// 	ReadTimeout:    10 * time.Second,
+	// 	WriteTimeout:   10 * time.Second,
+	// 	MaxHeaderBytes: 1 << 20,
+	// }
 
-	log.Println("Escuchando localhost:8080...")
-	server.ListenAndServe()
+	// log.Println("Escuchando localhost:8080...")
+	// server.ListenAndServe()
+
+	err := http.ListenAndServe(":9000", handlers.CORS(header, methods, origins)(r))
+
+	if err != nil {
+		fmt.Println(err)
+	}
 }

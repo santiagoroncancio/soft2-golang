@@ -1,29 +1,21 @@
-function login() {
-    $.ajax({
-        // url: 'http://localhost:8080/api/login',
-        url: 'http://localhost:8080/api/notes',
-        type: 'GET'
-    }).done(function(data){
-    alert(data);
-    });
-}
-// function login() {
-//     var usuario = {
-//         "title": "Titulo 1",
-//         "description": "Description"
-//     }
+$(document).ready(function () {
+    $('#btn-conectar').click(function () {
+        var usuario = {
+            "title": "Titulo 1",
+            "description": "Description"
+        }
 
-//     $.ajax({
-//         // url: 'http://localhost:8080/api/login',
-//         url: 'http://localhost:8080/api/notes',
-//         type: 'POST',
-//         contentType: 'application/json;charset = utf-8',
-//         data: JSON.stringify(usuario),
-//         success: function (data) {
-//             console.log(data);
-//         },
-//         error: function(error){
-//             console.log(error);
-//         }
-//     });
-// }
+        $.ajax({
+            // url: 'http://localhost:8080/api/login',
+            url: 'http://localhost:9000/api/notes',
+            type: 'POST',
+            data: JSON.stringify(usuario),
+            success: function () {
+                console.log("Funciona");
+            },
+            error: function (error) {
+                console.log(error);
+            }
+        });
+    });
+});
