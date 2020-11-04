@@ -15,8 +15,11 @@ func main() {
 		log.Fatal(err)
 	}
 	println("Connection succcess!!")
+
 	// rows, err := db.Query("SELECT sysdate  FROM dual")
-	rows, err := db.Query("SELECT cargo from cargos")
+	// rows, err := db.Query("SELECT cargo from cargos")
+	rows, err := db.Query("INSERT INTO SYSTEM.HOLA (IID, NOMBRE) VALUES ('3', 'ae')")
+
 	if err != nil {
 		log.Fatal(err)
 	}

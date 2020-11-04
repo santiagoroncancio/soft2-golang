@@ -1,7 +1,6 @@
 package main
 
 import (
-	"database/sql"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -114,32 +113,27 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 
-	db, err := sql.Open("oci8", user.Username+"/"+user.Password+"@localhost:1521/xe?PROTOCAL=TCP")
-
-	fmt.Println("Error creating DB:", err)
-	fmt.Println("To verify, db is:", db)
+	db := GetConnection()
 
 	reply := Reply{"Conexión exitosa :D"}
 
+	rows, err := db.Query("SELECT sysdate  FROM dual")
 	if err != nil {
-		fmt.Println("Error en la conexión D:")
-	} else {
-		rows, err := db.Query("SELECT sysdate  FROM dual")
-		if err != nil {
-			log.Fatal(err)
+		log.Fatal(err)
+	}
+
+	var (
+		sysdate string
+	)
+
+	for rows.Next() {
+		if err = rows.Scan(&sysdate); err != nil {
+			log.Fatalln("error fetching", err)
 		}
-		var (
-			sysdate string
-		)
-		for rows.Next() {
-			if err = rows.Scan(&sysdate); err != nil {
-				log.Fatalln("error fetching", err)
-			}
-			log.Println(sysdate)
-		}
-		if err != nil {
-			panic(err)
-		}
+		log.Println(sysdate)
+	}
+	if err != nil {
+		panic(err)
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -151,42 +145,32 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 
 // ConsultaSQL - ConsultaSQL Oracle
 func ConsultaSQL(w http.ResponseWriter, r *http.Request) {
-	var user User
-	err := json.NewDecoder(r.Body).Decode(&user)
+	var reply Reply
+	err := json.NewDecoder(r.Body).Decode(&reply)
 	if err != nil {
 		panic(err)
 	}
 
-	db, err := sql.Open("oci8", user.Username+"/"+user.Password+"@localhost:1521/xe?PROTOCAL=TCP")
+	db := GetConnection()
 
-	fmt.Println("Error creating DB:", err)
-	fmt.Println("To verify, db is:", db)
-
-	reply := Reply{"Conexión exitosa :D"}
-
+	rows, err := db.Query(reply.Dato)
 	if err != nil {
-		fmt.Println("Error en la conexión D:")
-	} else {
-		rows, err := db.Query("SELECT sysdate  FROM dual")
-		if err != nil {
-			log.Fatal(err)
+		log.Fatal(err)
+	}
+	var respuesta string
+	for rows.Next() {
+		if err = rows.Scan(&respuesta); err != nil {
+			log.Fatalln("error fetching", err)
 		}
-		var (
-			sysdate string
-		)
-		for rows.Next() {
-			if err = rows.Scan(&sysdate); err != nil {
-				log.Fatalln("error fetching", err)
-			}
-			log.Println(sysdate)
-		}
-		if err != nil {
-			panic(err)
-		}
+		log.Println(respuesta)
+	}
+	if err != nil {
+		panic(err)
+
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	j, err := json.Marshal(reply)
+	j, err := json.Marshal("")
 
 	w.WriteHeader(http.StatusOK)
 	w.Write(j)
