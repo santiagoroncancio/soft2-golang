@@ -40,17 +40,47 @@ $(document).ready(function () {
     $('#btn-limpiar').click(function () {
         $("#text-area").val("");
     });
-    $('#btn-desc').click(function(){
+    $('#btn-desc').click(function () {
         console.log("vas a morrir moe")
         $.ajax({
             url: 'http://localhost:9000/api/tabla',
             type: 'GET',
             success: function (data) {
-                alert(data.dato);
+                $.each(data, function (key, value) {
+                    if (value.tipoTabla == "TABLE") {
+                        $(".nav .nav-treeview").append('<li class="nav-item"> '
+                            + '<a href="#Todocontenido" class="nav-link tableUser" onclick="getTable(`' + value.nombreTabla + '`)">'
+                            + '<i class="far fa-circle nav-icon"></i>'
+                            + '<p>' + value.nombreTabla + '</p></a></li>');
+                        //console.log(key + ": " + value.nombreTabla + " --- " + value.tipoTabla);
+                    }
+                });
             },
             error: function (error) {
                 console.log(error);
             }
         });
     });
+    $('.tableUser').click(function () {
+        console.log("haga algo");
+    });
 });
+
+function getTable(nombTabla) {
+    console.log(nombTabla);
+    var reply = {
+        dato: nombTabla
+    }
+/*
+    $.ajax({
+        url: 'http://localhost:9000/api/consulta',
+        type: 'POST',
+        data: JSON.stringify(reply),
+        success: function (data) {
+            alert(data.dato);
+        },
+        error: function (error) {
+            console.log(error);
+        }
+    });*/
+}
