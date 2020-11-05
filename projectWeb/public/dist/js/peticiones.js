@@ -11,6 +11,28 @@ $(document).ready(function () {
             data: JSON.stringify(usuario),
             success: function (data) {
                 alert(data.dato);
+
+                console.log("vas a morrir moe")
+                $.ajax({
+                    url: 'http://localhost:9000/api/tabla',
+                    type: 'GET',
+                    success: function (data) {
+                        // console.log(data[0])
+                        $.each(data, function (key, value) {
+                            if (value.tipoTabla == "TABLE") {
+                                $(".nav .nav-treeview").append('<li class="nav-item"> ' +
+                                    '<a href="#Todocontenido" class="nav-link tableUser" onclick="getTable(`' + value.nombreTabla + '`)">' +
+                                    '<i class="far fa-circle nav-icon"></i>' +
+                                    '<p>' + value.nombreTabla + '</p></a></li>');
+                                // console.log(key + ": " + value.nombreTabla + " --- " + value.tipoTabla);
+                            }
+                        });
+                    },
+                    error: function (error) {
+                        console.log(error);
+                    }
+                });
+
             },
             error: function (error) {
                 console.log(error);
@@ -25,7 +47,7 @@ $(document).ready(function () {
         }
 
         $.ajax({
-            url: 'http://localhost:9000/api/consulta',
+            url: 'http://localhost:9000/api/consultas',
             type: 'POST',
             data: JSON.stringify(reply),
             success: function (data) {
@@ -41,25 +63,7 @@ $(document).ready(function () {
         $("#text-area").val("");
     });
     $('#btn-desc').click(function () {
-        console.log("vas a morrir moe")
-        $.ajax({
-            url: 'http://localhost:9000/api/tabla',
-            type: 'GET',
-            success: function (data) {
-                $.each(data, function (key, value) {
-                    if (value.tipoTabla == "TABLE") {
-                        $(".nav .nav-treeview").append('<li class="nav-item"> '
-                            + '<a href="#Todocontenido" class="nav-link tableUser" onclick="getTable(`' + value.nombreTabla + '`)">'
-                            + '<i class="far fa-circle nav-icon"></i>'
-                            + '<p>' + value.nombreTabla + '</p></a></li>');
-                        //console.log(key + ": " + value.nombreTabla + " --- " + value.tipoTabla);
-                    }
-                });
-            },
-            error: function (error) {
-                console.log(error);
-            }
-        });
+
     });
     $('.tableUser').click(function () {
         console.log("haga algo");
@@ -71,7 +75,6 @@ function getTable(nombTabla) {
     var reply = {
         dato: nombTabla
     }
-/*
     $.ajax({
         url: 'http://localhost:9000/api/consulta',
         type: 'POST',
@@ -82,5 +85,5 @@ function getTable(nombTabla) {
         error: function (error) {
             console.log(error);
         }
-    });*/
+    });
 }

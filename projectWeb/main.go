@@ -27,15 +27,15 @@ type User struct {
 	Password string `json:"password"`
 }
 
-// Tabla - struct
-type Tabla struct {
-	NombreTabla string `json:"nombreTabla"`
-	TipoTabla   string `json:"tipoTabla"`
-}
-
 //Reply - struct
 type Reply struct {
 	Dato string `json:"dato"`
+}
+
+// Datos - struct
+type Datos struct {
+	NombreTabla string `json:"nombreTabla"`
+	TipoTabla   string `json:"tipoTabla"`
 }
 
 var noteStore = make(map[string]Note)
@@ -159,7 +159,7 @@ func GetTablas(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 
-	var tablas []Tabla
+	var datos []Datos
 	var str1 string
 	var str2 string
 
@@ -168,25 +168,63 @@ func GetTablas(w http.ResponseWriter, r *http.Request) {
 			log.Fatalln("error fetching", err)
 		}
 
-		dato := Tabla{
+		aux := Datos{
 			NombreTabla: str1,
 			TipoTabla:   str2,
 		}
 
-		tablas = append(tablas, dato)
-	}
-
-	for _, tarea := range tablas {
-		fmt.Println("da ", tarea.NombreTabla)
+		datos = append(datos, aux)
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	j, err := json.Marshal(tablas)
+	j, err := json.Marshal(datos)
 	if err != nil {
 		panic(err)
 	}
 	w.WriteHeader(http.StatusOK)
 	w.Write(j)
+}
+
+// GetConsulta -- Consulta
+func GetConsulta(w http.ResponseWriter, r *http.Request) {
+	var reply Reply
+	err := json.NewDecoder(r.Body).Decode(&reply)
+	if err != nil {
+		panic(err)
+	}
+	db := get2Con()
+	// rows, err := db.Query("select column_name from all_tab_columns where table_name = '" + reply.Dato + "';")
+	rows, err := db.Query("select column_name from all_tab_columns where table_name = ?", reply.Dato)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var Col []string
+	var nombreCol string
+
+	for rows.Next() {
+		if err = rows.Scan(&nombreCol); err != nil {
+			log.Fatalln("error fetching", err)
+		}
+		Col = append(Col, nombreCol)
+	}
+
+	fmt.Println("tamaño de la consulta ", len(Col))
+
+	// for _, tcol := range Col {
+	// 	rows, err = db.Query("select " + tcol + " from " + reply.Dato)
+	// 	if err != nil {
+	// 		log.Fatal(err)
+	// 	}
+	// 	for rows.Next() {
+	// 		if err = rows.Scan(&nombreCol); err != nil {
+	// 			log.Fatalln("error fetching", err)
+	// 		}
+	// 		Col = append(Col, nombreCol)
+	// 	}
+	// }
+
+	w.WriteHeader(http.StatusNoContent)
 }
 
 // ConsultaSQL - ConsultaSQL Oracle
@@ -231,8 +269,9 @@ func main() {
 	origins := handlers.AllowedOrigins([]string{"*"})
 
 	r.HandleFunc("/api/login", LoginUser).Methods("POST")
-	r.HandleFunc("/api/consulta", ConsultaSQL).Methods("POST")
+	r.HandleFunc("/api/consultas", ConsultaSQL).Methods("POST")
 	r.HandleFunc("/api/tabla", GetTablas).Methods("GET")
+	r.HandleFunc("/api/consulta", GetConsulta).Methods("POST")
 
 	r.HandleFunc("/api/notes", GetNoteHandler).Methods("GET")
 	r.HandleFunc("/api/notes", PostNoteHandler).Methods("POST")
