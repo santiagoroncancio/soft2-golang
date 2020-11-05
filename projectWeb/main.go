@@ -27,6 +27,12 @@ type User struct {
 	Password string `json:"password"`
 }
 
+// Tabla - struct
+type Tabla struct {
+	NombreTabla string `json:"nombreTabla"`
+	TipoTabla   string `json:"tipoTabla"`
+}
+
 //Reply - struct
 type Reply struct {
 	Dato string `json:"dato"`
@@ -116,9 +122,11 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 	db := GetConnection(user.Username, user.Password)
 
 	reply := Reply{"Conexión exitosa :D"}
+	fmt.Println(db)
 
 	rows, err := db.Query("SELECT sysdate  FROM dual")
 	if err != nil {
+		fmt.Println("Error ", err)
 		log.Fatal(err)
 	}
 
@@ -139,6 +147,44 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	j, err := json.Marshal(reply)
 
+	w.WriteHeader(http.StatusOK)
+	w.Write(j)
+}
+
+// GetTablas - GET - /api/notes
+func GetTablas(w http.ResponseWriter, r *http.Request) {
+	db := get2Con()
+	rows, err := db.Query("select * from user_catalog")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var tablas []Tabla
+	var str1 string
+	var str2 string
+
+	for rows.Next() {
+		if err = rows.Scan(&str1, &str2); err != nil {
+			log.Fatalln("error fetching", err)
+		}
+
+		dato := Tabla{
+			NombreTabla: str1,
+			TipoTabla:   str2,
+		}
+
+		tablas = append(tablas, dato)
+	}
+
+	for _, tarea := range tablas {
+		fmt.Println("da ", tarea.NombreTabla)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	j, err := json.Marshal(tablas)
+	if err != nil {
+		panic(err)
+	}
 	w.WriteHeader(http.StatusOK)
 	w.Write(j)
 }
@@ -186,6 +232,7 @@ func main() {
 
 	r.HandleFunc("/api/login", LoginUser).Methods("POST")
 	r.HandleFunc("/api/consulta", ConsultaSQL).Methods("POST")
+	r.HandleFunc("/api/tabla", GetTablas).Methods("GET")
 
 	r.HandleFunc("/api/notes", GetNoteHandler).Methods("GET")
 	r.HandleFunc("/api/notes", PostNoteHandler).Methods("POST")

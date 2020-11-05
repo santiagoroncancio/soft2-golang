@@ -2,10 +2,16 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 
 	_ "github.com/mattn/go-oci8"
 )
+
+type Tabla struct {
+	NombreTabla string `json:"nombreTabla"`
+	TipoTabla   string `json:"tipoTabla"`
+}
 
 func main() {
 	println("start")
@@ -17,19 +23,33 @@ func main() {
 	println("Connection succcess!!")
 
 	// rows, err := db.Query("SELECT sysdate  FROM dual")
-	rows, err := db.Query("SELECT cargo from cargos")
+	// rows, err := db.Query("SELECT * from cargos")
+	rows, err := db.Query("select * from user_catalog")
 	// rows, err := db.Query("INSERT INTO SYSTEM.HOLA (IID, NOMBRE) VALUES ('3', 'ae')")
 
 	if err != nil {
 		log.Fatal(err)
 	}
-	var campos string
-	i := 0
+
+	var tablas []Tabla
+	var str1 string
+	var str2 string
+
 	for rows.Next() {
-		if err = rows.Scan(&campos); err != nil {
+		if err = rows.Scan(&str1, &str2); err != nil {
 			log.Fatalln("error fetching", err)
 		}
-		log.Println(campos)
-		i = i + 1
+
+		dato := Tabla{
+			NombreTabla: str1,
+			TipoTabla:   str2,
+		}
+
+		tablas = append(tablas, dato)
 	}
+
+	for _, tarea := range tablas {
+		fmt.Println("da ", tarea.NombreTabla)
+	}
+
 }

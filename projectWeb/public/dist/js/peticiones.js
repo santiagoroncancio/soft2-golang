@@ -40,4 +40,17 @@ $(document).ready(function () {
     $('#btn-limpiar').click(function () {
         $("#text-area").val("");
     });
+    $('#btn-desc').click(function(){
+        console.log("vas a morrir moe")
+        $.ajax({
+            url: 'http://localhost:9000/api/tabla',
+            type: 'GET',
+            success: function (data) {
+                alert(data.dato);
+            },
+            error: function (error) {
+                console.log(error);
+            }
+        });
+    });
 });
