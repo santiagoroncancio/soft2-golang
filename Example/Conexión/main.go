@@ -17,19 +17,19 @@ func main() {
 	println("Connection succcess!!")
 
 	// rows, err := db.Query("SELECT sysdate  FROM dual")
-	// rows, err := db.Query("SELECT cargo from cargos")
-	rows, err := db.Query("INSERT INTO SYSTEM.HOLA (IID, NOMBRE) VALUES ('3', 'ae')")
+	rows, err := db.Query("SELECT cargo from cargos")
+	// rows, err := db.Query("INSERT INTO SYSTEM.HOLA (IID, NOMBRE) VALUES ('3', 'ae')")
 
 	if err != nil {
 		log.Fatal(err)
 	}
-	var (
-		sysdate string
-	)
+	var campos string
+	i := 0
 	for rows.Next() {
-		if err = rows.Scan(&sysdate); err != nil {
+		if err = rows.Scan(&campos); err != nil {
 			log.Fatalln("error fetching", err)
 		}
-		log.Println(sysdate)
+		log.Println(campos)
+		i = i + 1
 	}
 }

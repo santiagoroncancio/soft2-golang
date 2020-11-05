@@ -113,7 +113,7 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 
-	db := GetConnection()
+	db := GetConnection(user.Username, user.Password)
 
 	reply := Reply{"Conexión exitosa :D"}
 
@@ -151,7 +151,7 @@ func ConsultaSQL(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 
-	db := GetConnection()
+	db := get2Con()
 
 	rows, err := db.Query(reply.Dato)
 	if err != nil {
